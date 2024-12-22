@@ -1,21 +1,24 @@
 import axios from "axios";
-import { useState ,useEffect} from "react";
+import { useState, useEffect } from "react";
 
-export default function usePokemonList() {  
+export default function usePokemonList() {
   const [pokemonListState, setPokemonListState] = useState({
     pokemonList: [],
     isLoading: true,
     nextUrl: null,
     prevUrl: null,
   });
-  const [pokedexUrl, setPokedexUrl] = useState("https://pokeapi.co/api/v2/pokemon");
+  const [pokedexUrl, setPokedexUrl] = useState(
+    "https://pokeapi.co/api/v2/pokemon"
+  );
+
   async function downloadPokemons() {
     try {
       const response = await axios.get(pokedexUrl);
       const pokemonResultPromise = response.data.results.map((pokemon) =>
         axios.get(pokemon.url)
       );
-      const pokemonData = await axios.all(pokemonResultPromise);
+      const pokemonData = await Promise.all(pokemonResultPromise);
       const pokeListResult = pokemonData.map((pokeData) => {
         const pokemon = pokeData.data;
         return {
@@ -24,7 +27,7 @@ export default function usePokemonList() {
           image:
             pokemon.sprites.other?.dream_world?.front_default ||
             pokemon.sprites.front_shiny,
-          types: pokemon.types,
+          types: pokemon.types.map((t) => t.type.name),
         };
       });
       setPokemonListState({
@@ -38,8 +41,10 @@ export default function usePokemonList() {
       setPokemonListState((prevState) => ({ ...prevState, isLoading: false }));
     }
   }
+
   useEffect(() => {
     downloadPokemons();
   }, [pokedexUrl]);
+
   return { pokemonListState, setPokedexUrl };
 }
