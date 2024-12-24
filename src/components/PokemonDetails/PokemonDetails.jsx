@@ -2,9 +2,9 @@ import { useParams } from "react-router-dom";
 import "./PokemonDetails.css";
 import usePokemonDetails from "../../hooks/usePokemonDetails";
 
-function PokemonDetails() {
+function PokemonDetails({pokemonName}) {
   const { id } = useParams();
-  const { pokemon, isLoading } = usePokemonDetails(id);
+  const { pokemon, isLoading } = usePokemonDetails(id, pokemonName);
 
   if (isLoading) {
     return <div>Loading...</div>;
